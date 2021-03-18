@@ -36,10 +36,11 @@ df %>% distinct(id)
 ks2 <- readxl::read_excel("data/ks.xlsx")
 
 ks <- tibble( id = c(7,0,5,2,8,4,1,3,6,9,10),
-                  fylke = c("Oslo", "Roganland", "Møre og Romsdal", "Nordland", "Viken", "Innland", "Vestfold og Telemark", "Agder", "Vestland", "Trøndelag", "Troms og Finnmark")
-                  )
+              fylke = c("Oslo", "Roganland", "Møre og Romsdal", "Nordland", "Viken", "Innland", "Vestfold og Telemark", "Agder", "Vestland", "Trøndelag", "Troms og Finnmark"))
 
 df_ledig <- readxl::read_excel("data/ledighet_korona.xlsx") 
+
+df_ledig %>% distinct(Periode)
 
 ks <- left_join(ks,df_ledig, by = "id")
 
@@ -51,14 +52,16 @@ head(map)
 #Her plotter vi selve kartet. Du trenger minst å legge inn ggplot(df, aes(long, lat, group = group))
 #og geom_polygon(aes(fill = "navnet på variabelen du ønsker å visualisere i kartet")). Alt etter dette er kun for å gjøre kartet vakkert.
 
-a <- ggplot(map, aes(long, lat, group = group)) + 
+a <- ggplot( as_tibble(map) %>% filter( Periode < lubridate::ymd("2020-04-01")),
+             aes(long, lat, group = group #,frame = Periode
+                 ) )  + 
     geom_polygon(aes(fill = Andel), color="black")+ 
     scale_fill_gradient(low="white", high="navy")+
-    theme_light()+
-    theme(plot.margin = unit(c(1,1,1,1), "cm"))+
-    labs(title = "Kontantstøtte",
-         subtitle = "Antall personer med ytelse pr. fylke i 2011",
-         caption = "Kilde: NAV")
+    theme_void()+
+    theme(plot.margin = unit(c(1,1,1,1), "cm") ) # +
+    # labs(title = "ledighet",
+    #      subtitle = "Antall personer med ytelse pr. fylke i 2011",
+    #      caption = "Kilde: NAV")
 a
 
 #theme_void gjør at du fjerner lat og long i kartet. Alternativer her er f.eks theme_light() som vil gi deg et rutenett o.l.
@@ -68,3 +71,13 @@ a
 
 #Dette er starten på å gjøre kartene "dynamiske". Ved bruk av ggplotly kan du dra pekeren over kartet for å vise verdier osv.. 
 fig <- ggplotly(a)
+
+
+fig
+
+
+
+
+
+
+
